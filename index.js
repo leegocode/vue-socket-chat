@@ -17,4 +17,8 @@ io.on('connection',(socket)=>{
   socket.on('disconnect', ()=>{
     console.log('user disconnnnnnnnect!');
   })
+
+  socket.on('Created', (data)=>{
+    socket.broadcast.emit('Created', (data) )
+  })
 })

@@ -11,9 +11,20 @@
 
   <div class="" id="app">
     <div class="container">
-      <div class="col-lg-6 offset-lg-3">
+      <div class="col-lg-4 offset-lg-3">
 
-        <div class="card bg-info">
+        <div v-if="!ready">
+          <h5>your name:</h5>
+          <form @submit.prevent="addName">
+            <div class="form-group row">
+              <input type="text" class="form-control col-9" v-model="userName" placeholder="your display name">
+            </div>
+          </form>
+        </div>
+        <h2 v-else > {{ userName }} </h2>
+      </div>
+
+        <div class="card bg-info" v-if="ready">
           <div class="card-header  text-white">
             Chat Room
           </div>
@@ -54,7 +65,9 @@
     data:{
       newmessenge: null,
       messages: [],
-      typing: false
+      typing: false,
+      userName: null,
+      ready: false
     },
     el: '#app',
     watch:{
@@ -67,6 +80,10 @@
         this.messages.push({ message: this.newmessenge, type: 0 })
         socket.emit('chat-messange', this.newmessenge)
         this.newmessenge = null
+      },
+      addName(){
+        this.ready = true
+
       }
     },
     created(){

@@ -18,13 +18,13 @@
             Chat Room
           </div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item">Cras justo odio</li>
+            <li class="list-group-item" v-for="message in messages">{{ message }}</li>
           </ul>
 
           <div class="card-body">
-            <form>
+            <form @submit.prevent="send">
               <div class="form-group">
-                <input type="email" class="form-control" placeholder="type ....">
+                <input type="text" class="form-control" v-model="newmessenge" placeholder="type ....">
               </div>
               <button type="submit" class="btn btn-primary">Add</button>
             </form>
@@ -46,11 +46,25 @@
   <script>
   var socket = io();
   let app = new Vue({
+    data:{
+      newmessenge: null,
+      messages: []
+    },
     el: '#app',
+    methods:{
+      send(){
+        this.messages.push(this.newmessenge)
+        socket.emit('chat-messange', this.newmessenge)
+        this.newmessenge = null
+      }
+    },
     created(){
       socket.emit('Created', 'Lee')
       socket.on('Created', (data)=>{
         console.log(data)
+      })
+      socket.on('chat-messange',(data)=>{
+        this.messages.push(data)
       })
     }
   })

@@ -18,7 +18,12 @@
             Chat Room
           </div>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item" v-for="message in messages">{{ message }}</li>
+            <li class="list-group-item" v-for="message in messages">
+              <span :class="{'float-right':message.type === 0 }">
+                {{ message.message }}
+              </span>
+            </li>
+            <small v-if="typing" class="text-gray">user is typing.....</small>
           </ul>
 
           <div class="card-body">
@@ -26,7 +31,7 @@
               <div class="form-group">
                 <input type="text" class="form-control" v-model="newmessenge" placeholder="type ....">
               </div>
-              <button type="submit" class="btn btn-primary">Add</button>
+              <button type="submit" class="btn btn-primary">send</button>
             </form>
 
           </div>
@@ -48,12 +53,18 @@
   let app = new Vue({
     data:{
       newmessenge: null,
-      messages: []
+      messages: [],
+      typing: false
     },
     el: '#app',
+    watch:{
+      newmessenge(value){
+        value? socket.emit('typing') : socket.emit('stopTyping')
+      }
+    },
     methods:{
       send(){
-        this.messages.push(this.newmessenge)
+        this.messages.push({ message: this.newmessenge, type: 0 })
         socket.emit('chat-messange', this.newmessenge)
         this.newmessenge = null
       }
@@ -63,8 +74,14 @@
       socket.on('Created', (data)=>{
         console.log(data)
       })
-      socket.on('chat-messange',(data)=>{
-        this.messages.push(data)
+      socket.on('chat-messange', (data) => {
+        this.messages.push({ message: data, type: 1 })
+      })
+      socket.on('typing', (data) => {
+        this.typing = true
+      })
+      socket.on('stopTyping', (data) => {
+        this.typing = false
       })
     }
   })

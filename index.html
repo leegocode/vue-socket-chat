@@ -36,10 +36,11 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item" v-for="message in messages">
               <span :class="{'float-right':message.type === 0 }">
+                <small>{{ message.by }}</small>
                 {{ message.message }}
               </span>
             </li>
-            <small v-if="typing" class="text-gray">user is typing.....</small>
+            <small v-if="typing" class="text-gray"> {{ typing }} is typing.....</small>
           </ul>
 
           <div class="card-body">
@@ -78,13 +79,13 @@
     el: '#app',
     watch:{
       newmessenge(value){
-        value? socket.emit('typing') : socket.emit('stopTyping')
+        value? socket.emit('typing', this.userName) : socket.emit('stopTyping')
       }
     },
     methods:{
       send(){
-        this.messages.push({ message: this.newmessenge, type: 0 })
-        socket.emit('chat-messange', this.newmessenge)
+        this.messages.push({ message: this.newmessenge, type: 0, by: 'Me' })
+        socket.emit('chat-messange', {message: this.newmessenge, user: this.userName})
         this.newmessenge = null
       },
       addName(){
@@ -101,10 +102,10 @@
         console.log(data)
       })
       socket.on('chat-messange', (data) => {
-        this.messages.push({ message: data, type: 1 })
+        this.messages.push({ message: data.message, type: 1, by: data.user })
       })
-      socket.on('typing', (data) => {
-        this.typing = true
+      socket.on('typing', (name) => {
+        this.typing = name
       })
       socket.on('stopTyping', (data) => {
         this.typing = false

@@ -1,6 +1,6 @@
-let app = require('express')();
-let http = require('http').createServer(app);
-let io = require('socket.io')(http);
+var app = require('express')();
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname  + '/index.html');
@@ -12,10 +12,13 @@ http.listen(3000, () => {
 });
 
 
-io.on('connection',(socket)=>{
-  console.log('there is a connetion!');
+io.on('connection',(socket) => {
+
+  io.emit('connections', io.engine.clientsCount );
+
+
   socket.on('disconnect', ()=>{
-    console.log('user disconnnnnnnnect!');
+    io.emit('connections', io.engine.clientsCount );
   })
 
   socket.on('Created', (data)=>{
@@ -37,4 +40,5 @@ io.on('connection',(socket)=>{
   socket.on('leaved', (data)=>{
     socket.broadcast.emit('leaved', (data) )
   })
+
 })

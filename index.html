@@ -31,7 +31,7 @@
 
         <div class="card bg-info" v-if="ready">
           <div class="card-header  text-white">
-            Chat Room
+            Chat Room <span class="flat-right">{{ connections }} connections </span>
           </div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item" v-for="message in messages">
@@ -74,7 +74,8 @@
       typing: false,
       userName: null,
       ready: false,
-      roomInfo: []
+      roomInfo: [],
+      connections: 0
     },
     el: '#app',
     watch:{
@@ -97,6 +98,9 @@
       window.onbeforeunload = () =>{
         socket.emit('leaved', this.userName)
       }
+      socket.on('connections', (data)=>{
+        this.connections = data
+      })
       socket.emit('Created', 'Lee')
       socket.on('Created', (data)=>{
         console.log(data)

@@ -11,6 +11,11 @@
 
   <div class="" id="app">
     <div class="container">
+      <div v-if="ready">
+        <p v-for="item in roomInfo">
+          {{ item.name }} {{ item.type }}
+        </p>
+      </div>
       <div class="col-lg-4 offset-lg-3">
 
         <div v-if="!ready">
@@ -67,7 +72,8 @@
       messages: [],
       typing: false,
       userName: null,
-      ready: false
+      ready: false,
+      roomInfo: []
     },
     el: '#app',
     watch:{
@@ -83,10 +89,13 @@
       },
       addName(){
         this.ready = true
-
+        socket.emit('joined', this.userName)
       }
     },
     created(){
+      window.onbeforeunload = () =>{
+        socket.emit('leaved', this.userName)
+      }
       socket.emit('Created', 'Lee')
       socket.on('Created', (data)=>{
         console.log(data)
@@ -100,6 +109,20 @@
       socket.on('stopTyping', (data) => {
         this.typing = false
       })
+      socket.on('joined', (data) => {
+        this.roomInfo.push({name: data, type:'Joined' })
+        setTimeout(() => {
+          this.roomInfo = []
+        }, 3000)
+      })
+      socket.on('leaved', (data) => {
+        this.roomInfo.push({name: data, type:'Leaved' })
+        setTimeout(() => {
+          this.roomInfo = []
+        }, 3000)
+
+      })
+
     }
   })
   </script>
